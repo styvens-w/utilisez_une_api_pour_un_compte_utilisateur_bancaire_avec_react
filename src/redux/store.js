@@ -1,16 +1,14 @@
-import thunk from "redux-thunk";
-
-import authReducer from "./reducers/authReducer";
-import userReducer from "./reducers/userReducer";
 import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./features/auth/authSlice";
+import { authApi } from "../utils/services/auth.service";
 
-export default configureStore({
+const store = configureStore({
   reducer: {
     auth: authReducer,
-    user: userReducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
-
-  middleware: [thunk],
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(authApi.middleware),
 });
 
-//const store = createStore(reducer, composeWithDevTools(applyMiddleware(thunk)));
+export default store;

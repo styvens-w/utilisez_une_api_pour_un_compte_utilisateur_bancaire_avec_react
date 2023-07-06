@@ -1,12 +1,12 @@
 .user {
   &__account {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
     border: 1px solid black;
     background-color: #fff;
     width: 80%;
-    flex-direction: column;
     padding: 1.5rem;
     box-sizing: border-box;
     text-align: left;

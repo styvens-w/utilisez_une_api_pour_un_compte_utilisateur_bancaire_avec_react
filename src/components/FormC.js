@@ -1,113 +1,126 @@
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCircleUser} from "@fortawesome/free-solid-svg-icons";
-import {useDispatch, useSelector} from 'react-redux';
-import { sign_in, sign_up } from "../redux/actions/authActions"
-import React, {useEffect} from "react";
-import {useNavigate} from "react-router-dom";
-import {get_user} from "../redux/actions/userActions";
-
+import React, { useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser, userLogin } from "../redux/features/auth/authActions";
+import { useNavigate } from "react-router-dom";
 
 function FormC({ type }) {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const connected = !!localStorage.getItem("token");
-    const status = useSelector(state => state.auth.status);
-    const message = useSelector(state => state.auth.message);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { register, handleSubmit } = useForm();
+  const { loading, error, success, userToken } = useSelector(
+    (state) => state.auth
+  );
 
+  // redirect authenticated user to profile screen
+  useEffect(() => {
+    // redirect authenticated user to profile screen
+    if (userToken) navigate("/profile");
+    // redirect user to login page if registration was successful
+    if (success) navigate("/sign_in");
+  }, [navigate, userToken, success]);
 
-    useEffect(() => {
-        if (connected) {
-            navigate("/profile");
-        }
+  const submitForm = (data) => {
+    if (type === "signin") {
+      dispatch(userLogin(data));
+    } else if (type === "signup") {
+      // transform email string to lowercase to avoid case sensitivity issues in login
+      data.email = data.email.toLowerCase();
 
-        if (status === 200 && message === "User successfully created") {
-            navigate("/sign_in");
-            document.getElementById("password").value = "";
-        }
-    }, [connected, navigate, status, message])
+      dispatch(registerUser(data));
+    }
+  };
 
+  return (
+    <section className="reg">
+      <FontAwesomeIcon className="reg__icon" icon={faCircleUser} />
+      {type === "signin" ? (
+        <h1 className="reg__title">Sign In</h1>
+      ) : (
+        <h1 className="reg__title">Sign Up</h1>
+      )}
+      <form onSubmit={handleSubmit(submitForm)} className="reg__form">
+        {error && (
+          <div className="reg__form__error">
+            <span>{error}</span>
+          </div>
+        )}
 
-    return (
-        <section className="reg">
-            <FontAwesomeIcon className="reg__icon" icon={faCircleUser} />
-            {
-                type === "signin"
-                    ? (<h1 className="reg__title">Sign In</h1>)
-                    : (<h1 className="reg__title">Sign Up</h1>)
-            }
-            <form className="reg__form">
-                {
-                    message ? (<div className="reg__form__error"><span>{message}</span></div>) : ("")
-                }
+        <div className="reg__form__input-wrapper">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            autoComplete="email"
+            id="email"
+            {...register("email")}
+            required
+          />
+        </div>
+        <div className="reg__form__input-wrapper">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            {...register("password")}
+            required
+          />
+        </div>
+        {type === "signin" ? (
+          <React.Fragment>
+            <div className="reg__form__input-remember">
+              <input type="checkbox" id="remember-me" />
+              <label htmlFor="remember-me">Remember me</label>
+            </div>
 
-                <div className="reg__form__input-wrapper">
-                    <label htmlFor="email">Email</label>
-                    <input type="text" autoComplete="email" id="email" name="email"/>
-                </div>
-                <div className="reg__form__input-wrapper">
-                    <label htmlFor="password">Password</label>
-                    <input type="password" id="password" name="password"/>
-                </div>
+            <button type="submit" className="reg__form__button">
+              Sign In
+            </button>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <div className="reg__form__input-wrapper">
+              <label htmlFor="firstname">FirstName</label>
+              <input
+                type="text"
+                id="firstname"
+                {...register("firstName")}
+                required
+              />
+            </div>
+            <div className="reg__form__input-wrapper">
+              <label htmlFor="lastname">LastName</label>
+              <input
+                type="text"
+                id="lastname"
+                {...register("lastName")}
+                required
+              />
+            </div>
 
-                {
-                    type === "signin"
-                        ?
-                        (
-                            <React.Fragment>
-                                <div className="reg__form__input-remember">
-                                    <input type="checkbox" id="remember-me"/>
-                                    <label htmlFor="remember-me">Remember me</label>
-                                </div>
+            <button
+              type="submit"
+              className="reg__form__button"
+              disabled={loading}
+            >
+              Sign Up
+            </button>
+          </React.Fragment>
+        )}
+      </form>
 
-                                <button onClick={(e) => {
-
-                                    const email = document.getElementById("email").value;
-                                    const password = document.getElementById("password").value;
-
-                                    dispatch(sign_in(email, password));
-                                    e.preventDefault();
-
-                                }} type="submit" className="reg__form__button">Sign In</button>
-                            </React.Fragment>
-
-                        )
-                        :
-                        (
-                            <React.Fragment>
-                                <div className="reg__form__input-wrapper">
-                                    <label htmlFor="firstname">FirstName</label>
-                                    <input type="text" id="firstname" name="firstname"/>
-                                </div>
-                                <div className="reg__form__input-wrapper">
-                                    <label htmlFor="lastname">LastName</label>
-                                    <input type="text" id="lastname" name="lastname"/>
-                                </div>
-
-                                <button onClick={(e) => {
-
-                                    const email = document.getElementById("email").value;
-                                    const password = document.getElementById("password").value;
-                                    const firstName = document.getElementById("firstname").value;
-                                    const lastName = document.getElementById("lastname").value;
-
-                                    dispatch(sign_up(email, password, firstName.charAt(0).toUpperCase() + firstName.slice(1), lastName.charAt(0).toUpperCase() + lastName.slice(1)));
-                                    e.preventDefault();
-
-                                }} type="submit" className="reg__form__button">Sign Up</button>
-                            </React.Fragment>
-                        )
-                }
-
-            </form>
-
-            {
-                type === "signin"
-                    ? (<a className="reg__link" href="/sign_up">Sign-Up</a>)
-                    : (<a className="reg__link" href="/sign_in">Sign-In</a>)
-            }
-
-        </section>
-    )
+      {type === "signin" ? (
+        <a className="reg__link" href="/sign_up">
+          Sign-Up
+        </a>
+      ) : (
+        <a className="reg__link" href="/sign_in">
+          Sign-In
+        </a>
+      )}
+    </section>
+  );
 }
 
-export default FormC
+export default FormC;

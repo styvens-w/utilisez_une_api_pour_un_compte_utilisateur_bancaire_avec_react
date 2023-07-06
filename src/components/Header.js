@@ -2,24 +2,33 @@ import "../assets/scss/layouts/_header.scss";
 import React, { useEffect } from "react";
 import logo from "../assets/img/argentBankLogo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useDispatch, useSelector } from "react-redux";
+import { useGetUserDetailsQuery } from "../utils/services/auth.service";
+import { logout, setCredentials } from "../redux/features/auth/authSlice";
 import {
   faArrowRightFromBracket,
   faCircleUser,
 } from "@fortawesome/free-solid-svg-icons";
-import { useDispatch, useSelector } from "react-redux";
-import { sign_out } from "../redux/actions/authActions";
-import { get_user } from "../redux/actions/userActions";
 
 function Header() {
-  let connected = !!localStorage.getItem("token");
+  const { userInfo, loginLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const firstName = useSelector((state) => state.user.firstName);
+
+  // automatically authenticate user if token is found
+  const { data } = useGetUserDetailsQuery("userDetails", {
+    // perform a refetch every 15mins
+    pollingInterval: 900000,
+  });
 
   useEffect(() => {
-    if (connected) {
-      dispatch(get_user());
+    if (loginLoading) {
+      window.location.reload();
     }
-  }, [connected, dispatch]);
+
+    if (data) {
+      dispatch(setCredentials(data));
+    }
+  }, [data, dispatch, loginLoading]);
 
   return (
     <header className="header">
@@ -33,18 +42,18 @@ function Header() {
           <h1 className="sr-only">Argent Bank</h1>
         </a>
         <div>
-          {connected ? (
+          {userInfo ? (
             <React.Fragment>
               <a className="header__nav__item" href="/profile">
                 <FontAwesomeIcon
                   className="header__nav__item-icon"
                   icon={faCircleUser}
                 />
-                {firstName}
+                {data && data?.body.firstName}
               </a>
 
               <a
-                onClick={() => dispatch(sign_out())}
+                onClick={() => dispatch(logout())}
                 className="header__nav__item"
                 href="/sign_in"
               >
