@@ -1,4 +1,4 @@
-import Axios from "../../../utils/services/caller.service";
+import Axios from "../../utils/services/caller.service";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const userLogin = createAsyncThunk(

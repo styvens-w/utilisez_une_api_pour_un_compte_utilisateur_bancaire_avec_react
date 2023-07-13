@@ -16,11 +16,15 @@ const initialState = {
 };
 
 const authSlice = createSlice({
+  // Le nom du slice
   name: "auth",
 
+  // Le state initial
   initialState,
 
+  // "reducers" permet de définir les actions et le reducer
   reducers: {
+    // L'action logout (déconnexion)
     logout: (state) => {
       localStorage.removeItem("userToken"); // delete token from storage
       state.loading = false;
@@ -30,13 +34,14 @@ const authSlice = createSlice({
       state.error = null;
     },
 
+    // L'action setCredentials qui permet de mettre à jour la valeur du store
     setCredentials: (state, { payload }) => {
       state.userInfo = payload;
     },
   },
 
   extraReducers: (builder) => {
-    // login user
+    // userLogin reducer
     builder.addCase(userLogin.pending, (state) => {
       state.loading = true;
       state.loginLoading = false;
@@ -56,7 +61,7 @@ const authSlice = createSlice({
       state.error = payload;
     });
 
-    // register user
+    // registerUser reducer
     builder.addCase(registerUser.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -72,7 +77,7 @@ const authSlice = createSlice({
       state.error = payload;
     });
 
-    // update user
+    // updateUser reducer
     builder.addCase(updateUser.pending, (state) => {
       state.loading = true;
       state.error = null;

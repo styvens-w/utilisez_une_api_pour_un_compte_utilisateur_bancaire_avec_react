@@ -4,7 +4,7 @@ import logo from "../assets/img/argentBankLogo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetUserDetailsQuery } from "../utils/services/auth.service";
-import { logout, setCredentials } from "../redux/features/auth/authSlice";
+import { logout, setCredentials } from "../redux/features/authSlice";
 import {
   faArrowRightFromBracket,
   faCircleUser,

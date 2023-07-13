@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { updateUser } from "../redux/features/auth/authActions";
+import { updateUser } from "../redux/features/authActions";
 
 function UserHeader() {
   const { userToken, loading, userInfo } = useSelector((state) => state.auth);
