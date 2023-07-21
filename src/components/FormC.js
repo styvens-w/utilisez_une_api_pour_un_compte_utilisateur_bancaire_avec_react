@@ -7,28 +7,47 @@ import { registerUser, userLogin } from "../redux/features/authActions";
 import { useNavigate } from "react-router-dom";
 
 function FormC({ type }) {
-  const navigate = useNavigate();
+  /**
+   * En utilisant "useSelector" et "useDispatch", On peut lire l'état d'un store Redux et
+   * envoyer une action depuis n'importe quel composant, respectivement.
+   */
   const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm();
+  // "useSelector" est utilisé pour extraire les valeurs d'état "loading", "error", "success", et "userToken" de l'objet auth dans le store Redux.
   const { loading, error, success, userToken } = useSelector(
     (state) => state.auth
   );
 
-  // redirect authenticated user to profile screen
+  const navigate = useNavigate();
+  const { register, handleSubmit } = useForm();
+
   useEffect(() => {
-    // redirect authenticated user to profile screen
+    // Rediriger l'utilisateur authentifié vers la page de profil
     if (userToken) navigate("/profile");
-    // redirect user to login page if registration was successful
+    // Rediriger l'utilisateur vers la page de connexion si l'inscription a réussi.
     if (success) navigate("/sign_in");
   }, [navigate, userToken, success]);
 
   const submitForm = (data) => {
+    // Le state "type" est définie depuis le router pour savoir qu'elle type de formulaire nous voulons.
+    // Pour le formulaire de connexion
     if (type === "signin") {
+      // l'action userLogin est distribuée grace à useDispatch avec les données du formulaire comme argument.
       dispatch(userLogin(data));
-    } else if (type === "signup") {
-      // transform email string to lowercase to avoid case sensitivity issues in login
+    }
+
+    // Pour le formulaire d'inscription
+    else if (type === "signup") {
+      // On transforme l'email en minuscules pour éviter les problèmes de sensibilité à la casse lors de la connexion.
       data.email = data.email.toLowerCase();
 
+      // On transforme le prénom en minuscules pour que la première lettre soit une majuscule.
+      data.firstName =
+        data.firstName[0].toUpperCase() + data.firstName.slice(1);
+
+      // Pareil pour le nom
+      data.lastName = data.lastName[0].toUpperCase() + data.lastName.slice(1);
+
+      // L'action registerUser est distribuée grace à useDispatch avec les données du formulaire comme argument.
       dispatch(registerUser(data));
     }
   };
@@ -41,6 +60,11 @@ function FormC({ type }) {
       ) : (
         <h1 className="reg__title">Sign Up</h1>
       )}
+
+      {/**
+       * Les champs de saisie sur la page d'inscription/connexion sont connectés à "react-hook-form",
+       * qui saisit proprement les valeurs d'entrée et les renvoie dans une fonction "handleSubmit".
+       */}
       <form onSubmit={handleSubmit(submitForm)} className="reg__form">
         {error && (
           <div className="reg__form__error">

@@ -11,24 +11,26 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 function Header() {
-  const { userInfo, loginLoading } = useSelector((state) => state.auth);
+  const { userInfo, loginSuccess } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  // automatically authenticate user if token is found
+  // On authentifie automatiquement l'utilisateur si le token est trouvé
   const { data } = useGetUserDetailsQuery("userDetails", {
-    // perform a refetch every 15mins
+    // On effectue une nouvelle récupération toutes les 15 minutes
     pollingInterval: 900000,
   });
 
   useEffect(() => {
-    if (loginLoading) {
+    // Si une connexion est établi, on recharge la page.
+    if (loginSuccess) {
       window.location.reload();
     }
 
+    // si les données de l'utilisateur son trouvé
     if (data) {
       dispatch(setCredentials(data));
     }
-  }, [data, dispatch, loginLoading]);
+  }, [data, dispatch, loginSuccess]);
 
   return (
     <header className="header">
@@ -49,7 +51,7 @@ function Header() {
                   className="header__nav__item-icon"
                   icon={faCircleUser}
                 />
-                {data && data?.body.firstName}
+                {userInfo && userInfo?.body.firstName}
               </a>
 
               <a

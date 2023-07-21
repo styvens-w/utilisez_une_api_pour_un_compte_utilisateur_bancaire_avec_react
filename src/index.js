@@ -10,6 +10,7 @@ import User from "./pages/User";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 
+// Les différentes routes
 const router = createBrowserRouter([
   {
     path: "/",
@@ -31,11 +32,11 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
+  // On encapsule l'intégralité de l'application avec le composant React Redux "provider",
+  // pour rendre les valeurs du store accessible a tous les composants.
   <Provider store={store}>
-    <React.StrictMode>
-      <Header />
-      <RouterProvider router={router} />
-      <Footer />
-    </React.StrictMode>
+    <Header />
+    <RouterProvider router={router} />
+    <Footer />
   </Provider>
 );
